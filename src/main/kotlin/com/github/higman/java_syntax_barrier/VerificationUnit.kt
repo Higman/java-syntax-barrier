@@ -1,6 +1,7 @@
 package com.github.higman.java_syntax_barrier
 
 import com.github.javaparser.JavaParser
+import com.github.javaparser.ParseProblemException
 import com.github.javaparser.ParseStart.COMPILATION_UNIT
 import com.github.javaparser.Providers.provider
 import com.github.javaparser.ast.CompilationUnit
@@ -10,19 +11,19 @@ import com.github.javaparser.ast.CompilationUnit
  * SyntaxVerifierクラスで
  * @see SyntaxVerifier
  */
-internal abstract class VerificationUnit {
+abstract class VerificationUnit {
 
     /**
      * Javaコードの検証結果を取得するメソッド<br>
      * verifyProcessメソッドを呼び出し、コードの検証を行う。<br>
      * @param javaCodeData Javaコード情報
-     * @exception IllegalArgumentException 指定したJavaコードの構文解析が失敗した際に発生
+     * @exception ParseProblemException 指定したJavaコードの構文解析が失敗した際に発生
      * @return Javaコードの構文が正しければTrue、誤っていればFalseを返却する
      */
-    @Throws(IllegalArgumentException::class)
+    @Throws(ParseProblemException::class)
     fun result(javaCodeData: JavaCodeData): Boolean {
         // 抽象構文木情報
-        val parser = JavaParser().parse(COMPILATION_UNIT, provider(javaCodeData.code)).result.orElseThrow { IllegalArgumentException("指定のJavaコードのパースに失敗しました。") }
+        val parser = JavaParser.parse(javaCodeData.code)
         return verifyProcess(parser.clone())
     }
 
@@ -32,5 +33,5 @@ internal abstract class VerificationUnit {
      * @param parser 検証するJavaコードの抽象構文木情報
      * @return Javaコードの構文が正しければTrue、誤っていればFalseを返却する
      */
-    protected abstract fun verifyProcess(parser: CompilationUnit): Boolean
+    abstract fun verifyProcess(parser: CompilationUnit): Boolean
 }
